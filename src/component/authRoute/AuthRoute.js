@@ -1,6 +1,8 @@
 import React,{Component} from 'react';
 import axios from 'axios';
 import {withRouter} from 'react-router-dom';
+import {loadData, register} from '../../redux/User.redux';
+import {connect} from 'react-redux';
 
 class AuthRoute extends Component{
     constructor(props){
@@ -18,9 +20,9 @@ class AuthRoute extends Component{
            if(res.status==200){
                if(res.data.code==1){
                    //有登录信息
-                   console.log(res.data.code)
+                   this.props.loadData(res.data.data)
+                   console.log(res.data.data)
                }else {
-                   console.log(res.data)
                    console.log(this.props)
                    this.props.history.push('/login')
                }
@@ -39,4 +41,7 @@ class AuthRoute extends Component{
 }
 
 
-export default withRouter(AuthRoute);
+AuthRoute= withRouter(AuthRoute);
+const actionCreators={loadData}
+AuthRoute=connect(null,actionCreators)(AuthRoute)
+export default AuthRoute;

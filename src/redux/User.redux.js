@@ -1,10 +1,13 @@
 import axios from 'axios';
 import {getRedirectPath} from '../utils/util';
 
+
 const REGISER_SUCCESS="REGISER_SUCCESS";
 const LOGIN_SUCCESS="LOGIN_SUCCESS";
 const REGISTER_FAIL="REGISTER_FAIL";
 const ERROR_MESSAGE="ERROR_MESSAGE";
+const LOAD_DATA="LOAD_DATA";
+
 const initState={
     redirectTo:'',
     isAuth:'',
@@ -27,6 +30,29 @@ function loginSuccess(data) {
     return {type:LOGIN_SUCCESS,payload:data}
 }
 
+function userinfo() {
+       //获取用户信息
+       axios.get('/user/info').then((res)=>{
+           if(res.status==200){
+               if(res.data.code==1){
+                   //有登录信息
+                   console.log(res.data.code)
+                   this.props.loadData(res.data.data);
+               }else {
+                   this.props.history.push('/login')
+               }
+
+           }
+       })
+
+
+}
+
+export function loadData(userinfo) {
+    return {type:LOAD_DATA,payload:userinfo}
+}
+
+
 export function user(state=initState,action) {
     switch (action.type){
         case REGISER_SUCCESS:
@@ -35,6 +61,8 @@ export function user(state=initState,action) {
             return {...state,isAuth:false,msg:action.payload}
         case LOGIN_SUCCESS:
             return {...state,isAuth:true,redirectTo:getRedirectPath(action.payload)}
+        case LOAD_DATA:
+            return {...state,...action.payload}
         default:
             return state
     }

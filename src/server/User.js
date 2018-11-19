@@ -3,6 +3,7 @@ const Router=express.Router()
 const model=require('./Model')
 const User=model.getModel('user')
 const utility = require('utility');
+const filter={'pwd':0,'_v':0}
 
 Router.get('/list',function (req,res) {
     User.find({},function (err,doc) {
@@ -12,7 +13,7 @@ Router.get('/list',function (req,res) {
 
 Router.post('/login',function (req,res) {
     const {user,pwd}=req.body;
-    User.findOne({user:user,pwd:pwd},function (err,doc) {
+    User.findOne({user:user,pwd:MD5PASSWORD(pwd)},function (err,doc) {
         if(!doc){
             return res.json({code:0,msg:"用户名密码不匹配"})
         }
@@ -30,19 +31,54 @@ Router.post('/register',function (req,res) {
         if(doc){
             return res.json({code:0,msg:"用户名重复"})
         }
-        User.create({user:user,type:type,pwd:MD5PASSWORD(pwd)},function (e,d) {
+
+        const userModel=new User({user:user,type:type,pwd:MD5PASSWORD(pwd)});
+        userModel.save(function (e,d) {
             if(e){
                 return res.json({code:0,mwg:"后端插入数据时出错"})
             }else {
-
-                return res.json({code:1,msg:""})
+                console.log("/user/register"+d);
+                const {user,type,_id}=d;
+                res.cookie('userid',_id)
+                return res.json({code:1})
             }
         })
+
+        // User.create({user:user,type:type,pwd:MD5PASSWORD(pwd)},function (e,d) {
+        //     if(e){
+        //         return res.json({code:0,mwg:"后端插入数据时出错"})
+        //     }else {
+        //
+        //         return res.json({code:1,msg:""})
+        //     }
+        // })
     })
 })
 
 Router.get('/info',function (req,res) {
-    return res.json({code:1})
+    const userid=req.cookies;
+    console.log(userid)
+    if(!userid){
+        return {code:0}
+    }
+    // User.findOne({_id:userid},filter,function (err,doc) {
+    //     if(err){
+    //         return {code:0,msg:"后端出错"}
+    //     }
+    //     if(doc){
+    //         return {code:1,data:doc}
+    //     }
+    // })
+
+    User.findOne({},filter,function (err,doc) {
+        if(err){
+            return {code:0}
+        }else {
+            return res.json({code:1,data:doc})
+        }
+
+    })
+    // return res.json({code:1})
 })
 
 function MD5PASSWORD(password) {

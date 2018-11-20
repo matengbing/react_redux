@@ -12,6 +12,9 @@ import Login from './container/login/login';
 import Register from './container/register/Register';
 import AuthRoute from './component/authRoute/AuthRoute';
 import './index.css';
+import BossInfo from './container/bossinfo/BossInfo';
+
+
 
 let store;
 if(!(window.__REDUX_DEVTOOLS_EXTENSION__ || window.__REDUX_DEVTOOLS_EXTENSION__)){
@@ -42,7 +45,8 @@ ReactDom.render(
                 {/*此处的div包含AuthRoute和路由，如果没有div会报错*/}
                 <AuthRoute></AuthRoute>
                 <Switch>
-                    <Route path="/boss" component={Boss} />
+                    <Route path="/boss" exact component={Boss} />
+                    <Route path="/boss/info" component={BossInfo} />
                     <Route path="/login" component={Login} />
                     <Route path="/register" component={Register} />
                 </Switch>

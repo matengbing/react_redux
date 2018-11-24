@@ -1,7 +1,9 @@
 import React,{Component} from 'react';
 import { NavBar, Icon,InputItem,WhiteSpace,TextareaItem,Button  } from 'antd-mobile';
 import AvatarSelector from '../../avatar-selector/AvatarSelector';
-
+import {register, update} from '../../redux/User.redux';
+import {connect} from "react-redux";
+import {Redirect} from 'react-router-dom';
 
 class BossInfo extends Component{
     constructor(props){
@@ -12,6 +14,7 @@ class BossInfo extends Component{
             avatarText:''
         }
         this.onChange=this.onChange.bind(this);
+        this.onSubmit=this.onSubmit.bind(this);
     }
 
     onChange(key,value){
@@ -20,6 +23,9 @@ class BossInfo extends Component{
         })
     }
 
+    onSubmit(){
+        this.props.update(this.state);
+    }
 
     avatarSelector(imgname){
         this.setState({
@@ -37,6 +43,7 @@ class BossInfo extends Component{
                     Boss
                 </NavBar>
 
+                {this.props.redirectTo? <Redirect to={this.props.redirectTo}/>:null}
                 <AvatarSelector
                     avatarSelector={this.avatarSelector.bind(this)}
                 >
@@ -65,11 +72,17 @@ class BossInfo extends Component{
 
                 </ TextareaItem >
 
-            <Button type="primary">保存</Button>
+            <Button type="primary" onClick={this.onSubmit}>保存</Button>
             </div>
         )
     }
 }
 
+
+const mapStateToProps = (state) => {
+    return {user:state.user}
+}
+const actionCreators={update}
+BossInfo=connect(mapStateToProps,actionCreators)(BossInfo)
 
 export default BossInfo;

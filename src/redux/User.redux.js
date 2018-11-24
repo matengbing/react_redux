@@ -7,10 +7,10 @@ const LOGIN_SUCCESS="LOGIN_SUCCESS";
 const REGISTER_FAIL="REGISTER_FAIL";
 const ERROR_MESSAGE="ERROR_MESSAGE";
 const LOAD_DATA="LOAD_DATA";
+const AUTH_SUCCESS="AUTH_SUCCESS";
 
 const initState={
     redirectTo:'',
-    isAuth:'',
     user:'',
     pwd:'',
     repeatpwd:'',
@@ -29,6 +29,12 @@ function registeSsuccess(data) {
 function loginSuccess(data) {
     return {type:LOGIN_SUCCESS,payload:data}
 }
+
+function authSuccess(data) {
+    return {type:AUTH_SUCCESS,payload:data}
+}
+
+
 
 function userinfo() {
        //获取用户信息
@@ -53,14 +59,25 @@ export function loadData(userinfo) {
 }
 
 
+export function update(data) {
+    return dispatch=>{
+        axios.post('/user/update',data).then(res=>{
+            if (res.status == 200 && res.data.code == 1) {
+                dispatch(authSuccess(res.data.data))
+            } else {
+                dispatch(errorMsg(res.data.msg))
+            }
+        })
+    }
+}
+
+
 export function user(state=initState,action) {
     switch (action.type){
-        case REGISER_SUCCESS:
-            return {...state,msg:'',redirectTo:getRedirectPath(action.payload),isAuth:true,...action.payload}
+        case AUTH_SUCCESS:
+            return {...state,msg:'',redirectTo:getRedirectPath(action.payload),...action.payload}
         case ERROR_MESSAGE:
             return {...state,isAuth:false,msg:action.payload}
-        case LOGIN_SUCCESS:
-            return {...state,isAuth:true,redirectTo:getRedirectPath(action.payload)}
         case LOAD_DATA:
             return {...state,...action.payload}
         default:
@@ -78,7 +95,7 @@ export function login({user,pwd}) {
     return dispatch=> {
         axios.post('/user/login', {user, pwd}).then((res) => {
             if (res.status == 200 && res.data.code == 1) {
-                dispatch(loginSuccess(res.data.data))
+                dispatch(authSuccess(res.data.data))
             } else {
                 dispatch(errorMsg(res.data.msg))
             }
@@ -98,7 +115,7 @@ export function register({user,pwd,repeatpwd,type}) {
     return dispatch=> {
         axios.post('/user/register', {user, pwd, type}).then((res) => {
             if (res.status == 200 && res.data.code == 1) {
-                dispatch(registeSsuccess({user, pwd, type}))
+                dispatch(authSuccess({user, pwd, type}))
             } else {
                 dispatch(errorMsg(res.data.msg))
             }

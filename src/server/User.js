@@ -11,6 +11,27 @@ Router.get('/list',function (req,res) {
     })
 })
 
+Router.post('/update',function (req,res) {
+    const userid=req.cookies;
+    console.log(res.cookies)
+    console.log(userid)
+    if(!userid){
+        return res.json({code:0})
+    }
+    const body =req.body;
+    User.findByIdAndUpdate(userid,body,function (err,doc) {
+        if(err){
+            return res.json({code:0})
+        }
+
+
+        const data={...body,user:doc.user,type:doc.type}
+        return res.json({code:1,data:data})
+    })
+
+})
+
+
 Router.post('/login',function (req,res) {
     const {user,pwd}=req.body;
     User.findOne({user:user,pwd:MD5PASSWORD(pwd)},function (err,doc) {
